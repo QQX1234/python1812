@@ -30,20 +30,24 @@ def second_crawl(td_list,params,headers):
         href_list = re.findall(href_re, tt, re.S)
         # print(href_list)
 
-        ####路由拼接
-        for hrefs in href_list:
-            url = f'https://hr.tencent.com/{hrefs}'
-            # print(url)
+        #### 写入文件
+        with open('./tencent.txt','a',encoding='utf8') as fp:
+            ####路由拼接
+            for hrefs in href_list:
+                url = f'https://hr.tencent.com/{hrefs}'
+                # print(url)
 
-            response = requests.get(url, params=params,headers=headers)
-            req = response.text
-            suop=BeautifulSoup(req,'lxml')
-            ta=suop.find_all(name='ul',attrs=['squareli'])
-            # ta = suop.ul.children
-            print(ta)
+                ####爬取岗位具体内容
+                response = requests.get(url, params=params, headers=headers)
+                req = response.text
+                suop = BeautifulSoup(req, 'lxml')
+                ta = suop.find_all(name='ul', attrs=['squareli'])
+                # print(ta)
 
-
-
+                result = str(ta)
+                fp.write(result)
+                fp.flush()
+            fp.close()
 
 
 
@@ -52,7 +56,12 @@ def second_crawl(td_list,params,headers):
 if __name__=="__main__":
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     url = 'https://hr.tencent.com/position.php'
-    params = {'keywords': 'python'}
-    url_list = first_cwawl(url,params,headers)
 
-    second_crawl(url_list,params,headers)
+    for i in range(0,100,10):
+        params = {
+            'keywords': 'python',
+            'start': i
+        }
+        url_list = first_cwawl(url, params, headers)
+
+        second_crawl(url_list, params, headers)
